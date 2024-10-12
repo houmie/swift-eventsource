@@ -48,6 +48,7 @@ public class EventSource {
 
     /// Struct for configuring the EventSource.
     public struct Config {
+        public var sessionDelegate: URLSessionDelegate?
         /// The `EventHandler` called in response to activity on the stream.
         public let handler: EventHandler
         /// The `URL` of the request used when connecting to the EventSource API.
@@ -231,7 +232,11 @@ class EventSourceDelegate: NSObject, URLSessionDataDelegate {
     func createSession() -> URLSession {
         let opQueue = OperationQueue()
         opQueue.underlyingQueue = self.delegateQueue
-        return URLSession(configuration: config.urlSessionConfiguration, delegate: self, delegateQueue: opQueue)
+        if let customDelegate = config.sessionDelegate {
+            return URLSession(configuration: config.urlSessionConfiguration, delegate: customDelegate, delegateQueue: opQueue)
+        } else {
+            return URLSession(configuration: config.urlSessionConfiguration, delegate: self, delegateQueue: opQueue)
+        }
     }
 
     func createRequest() -> URLRequest {
